@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hangul Subtraction</title>
+    <title>Hangul Subtraction and Addition</title>
     <script>
         const INITIAL_JAMOS = ["ᄀ", "ᄁ", "ᄂ", "ᄃ", "ᄄ", "ᄅ", "ᄆ", "ᄇ", "ᄈ", "ᄉ", "ᄊ", "ᄋ", "ᄌ", "ᄍ", "ᄎ", "ᄏ", "ᄐ", "ᄑ", "ᄒ"];
         const MEDIAL_JAMOS = ["ᅡ", "ᅢ", "ᅣ", "ᅤ", "ᅥ", "ᅦ", "ᅧ", "ᅨ", "ᅩ", "ᅪ", "ᅫ", "ᅬ", "ᅭ", "ᅮ", "ᅯ", "ᅰ", "ᅱ", "ᅲ", "ᅳ", "ᅴ", "ᅵ"];
@@ -32,12 +32,13 @@
             return String.fromCharCode(code);
         }
 
-        function handleBackspace(event) {
-            if (event.key === 'Backspace') {
-                const inputElement = document.getElementById('input');
-                const inputValue = inputElement.value;
-                const lastChar = inputValue[inputValue.length - 1];
+        function handleKeyDown(event) {
+            const inputElement = document.getElementById('input');
+            const inputValue = inputElement.value;
+            const lastChar = inputValue[inputValue.length - 1];
+            const nextChar = event.key;
 
+            if (event.key === 'Backspace') {
                 if (lastChar && lastChar.charCodeAt(0) >= 0xAC00 && lastChar.charCodeAt(0) <= 0xD7AF) {
                     const { initial, medial, final } = decomposeSyllable(lastChar);
 
@@ -50,17 +51,25 @@
 
                     event.preventDefault();
                 }
+            } else if (event.key === 'Space' && FINAL_JAMOS.includes(nextChar) && lastChar && lastChar.charCodeAt(0) >= 0xAC00 && lastChar.charCodeAt(0) <= 0xD7AF) {
+                const { initial, medial } = decomposeSyllable(lastChar);
+
+                if (lastChar.charCodeAt(0) % 28 === 0) {
+                    const newChar = composeSyllable(initial, medial, nextChar);
+                    inputElement.value = inputValue.slice(0, -1) + newChar;
+                    event.preventDefault();
+                }
             }
         }
 
         window.onload = function () {
-            document.getElementById('input').addEventListener('keydown', handleBackspace);
+            document.getElementById('input').addEventListener('keydown', handleKeyDown);
         };
     </script>
 </head>
 
 <body>
-    <h1>Hangul Subtraction</h1>
+    <h1>Hangul Subtraction and Addition</h1>
     <input type="text" id="input" style="width: 100%;">
 </body>
 
