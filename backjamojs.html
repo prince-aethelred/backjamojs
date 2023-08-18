@@ -22,8 +22,9 @@
             const textbox = document.getElementById('input');
             let input_text = textbox.value;
             let i = 0;
+            const end = input_text.length - 1;
 
-            while (i < input_text.length - 1) {
+            for (i = 0; i < end; i++) {
                 const first = input_text[i];
                 const second = input_text[i + 1];
 
@@ -38,8 +39,6 @@
                         input_text = input_text.slice(0, i) + String.fromCharCode(0xAC00 + index + newJongseong) + input_text.slice(i + 2);
                     }
                 }
-
-                i++;
             }
 
             textbox.value = input_text;
@@ -52,7 +51,7 @@
 </head>
 
 <body>
-    <h1>Hangul CombinationVer0.0.1</h1>
+    <h1>Hangul CombinationVer0.0.3</h1>
     <input type="text" id="input" style="width: 100%;">
 </body>
 
