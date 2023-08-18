@@ -32,31 +32,36 @@
             return String.fromCharCode(code);
         }
 
-        function subtractFinal(syllable, finalToRemove) {
-            const { initial, medial, final } = decomposeSyllable(syllable);
+        function handleBackspace(event) {
+            if (event.key === 'Backspace') {
+                const inputElement = document.getElementById('input');
+                const inputValue = inputElement.value;
+                const lastChar = inputValue[inputValue.length - 1];
 
-            if (final === finalToRemove) {
-                return composeSyllable(initial, medial, "");
-            } else {
-                return `Cannot subtract ${finalToRemove} from ${syllable}`;
+                if (lastChar && lastChar.charCodeAt(0) >= 0xAC00 && lastChar.charCodeAt(0) <= 0xD7AF) {
+                    const { initial, medial, final } = decomposeSyllable(lastChar);
+
+                    if (final) {
+                        const newChar = composeSyllable(initial, medial, "");
+                        inputElement.value = inputValue.slice(0, -1) + newChar;
+                    } else {
+                        inputElement.value = inputValue.slice(0, -1);
+                    }
+
+                    event.preventDefault();
+                }
             }
         }
 
-        function demo() {
-            const syllable = "한";
-            const finalToRemove = "ᆫ";
-
-            const result = subtractFinal(syllable, finalToRemove);
-            document.getElementById('result').innerText = `Result: ${result}`;
-        }
-
-        window.onload = demo;
+        window.onload = function () {
+            document.getElementById('input').addEventListener('keydown', handleBackspace);
+        };
     </script>
 </head>
 
 <body>
     <h1>Hangul Subtraction</h1>
-    <p id="result"></p>
+    <input type="text" id="input" style="width: 100%;">
 </body>
 
 </html>
