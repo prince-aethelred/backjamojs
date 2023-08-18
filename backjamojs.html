@@ -19,30 +19,30 @@
         ];
 
         function combineCharacters() {
-            const inputElement = document.getElementById('input');
-            let value = inputElement.value;
+            const textbox = document.getElementById('input');
+            let input_text = textbox.value;
             let i = 0;
 
-            while (i < value.length - 1) {
-                const first = value[i];
-                const second = value[i + 1];
+            while (i < input_text.length - 1) {
+                const first = input_text[i];
+                const second = input_text[i + 1];
 
                 if (choseong.includes(first) && jungseong.includes(second)) {
-                    value = value.slice(0, i) + String.fromCharCode(0xAC00 + choseong.indexOf(first) * 588 + jungseong.indexOf(second) * 28) + value.slice(i + 2);
+                    input_text = input_text.slice(0, i) + String.fromCharCode(0xAC00 + choseong.indexOf(first) * 588 + jungseong.indexOf(second) * 28) + input_text.slice(i + 2);
                 }
 
                 else if (jongseong.includes(second) && 0xAC00 <= first.charCodeAt(0) && first.charCodeAt(0) <= 0xD7A3) {
                     const index = first.charCodeAt(0) - 0xAC00;
                     const newJongseong = jongseong.indexOf(second);
                     if (newJongseong > 0) {
-                        value = value.slice(0, i) + String.fromCharCode(0xAC00 + index + newJongseong) + value.slice(i + 2);
+                        input_text = input_text.slice(0, i) + String.fromCharCode(0xAC00 + index + newJongseong) + input_text.slice(i + 2);
                     }
                 }
 
                 i++;
             }
 
-            inputElement.value = value;
+            textbox.value = input_text;
         }
 
         window.onload = function () {
@@ -52,7 +52,7 @@
 </head>
 
 <body>
-    <h1>Hangul Combination</h1>
+    <h1>Hangul CombinationVer0.0.1</h1>
     <input type="text" id="input" style="width: 100%;">
 </body>
 
