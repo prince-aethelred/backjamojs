@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangul Subtraction</title>
+    <script>
+        const INITIAL_JAMOS = ["ᄀ", "ᄁ", "ᄂ", "ᄃ", "ᄄ", "ᄅ", "ᄆ", "ᄇ", "ᄈ", "ᄉ", "ᄊ", "ᄋ", "ᄌ", "ᄍ", "ᄎ", "ᄏ", "ᄐ", "ᄑ", "ᄒ"];
+        const MEDIAL_JAMOS = ["ᅡ", "ᅢ", "ᅣ", "ᅤ", "ᅥ", "ᅦ", "ᅧ", "ᅨ", "ᅩ", "ᅪ", "ᅫ", "ᅬ", "ᅭ", "ᅮ", "ᅯ", "ᅰ", "ᅱ", "ᅲ", "ᅳ", "ᅴ", "ᅵ"];
+        const FINAL_JAMOS = ["", "ᆨ", "ᆩ", "ᆪ", "ᆫ", "ᆬ", "ᆭ", "ᆮ", "ᆯ", "ᆰ", "ᆱ", "ᆲ", "ᆳ", "ᆴ", "ᆵ", "ᆶ", "ᆷ", "ᆸ", "ᆹ", "ᆺ", "ᆻ", "ᆼ", "ᆽ", "ᆾ", "ᆿ", "ᇀ", "ᇁ", "ᇂ"];
+
+        function decomposeSyllable(syllable) {
+            const code = syllable.charCodeAt(0) - 0xAC00;
+            const initialIdx = Math.floor(code / (21 * 28));
+            const medialIdx = Math.floor((code % (21 * 28)) / 28);
+            const finalIdx = code % 28;
+
+            return {
+                initial: INITIAL_JAMOS[initialIdx],
+                medial: MEDIAL_JAMOS[medialIdx],
+                final: FINAL_JAMOS[finalIdx],
+            };
+        }
+
+        function composeSyllable(initial, medial, final = "") {
+            const initialIdx = INITIAL_JAMOS.indexOf(initial);
+            const medialIdx = MEDIAL_JAMOS.indexOf(medial);
+            const finalIdx = FINAL_JAMOS.indexOf(final);
+
+            const code = (initialIdx * 21 + medialIdx) * 28 + finalIdx + 0xAC00;
+            return String.fromCharCode(code);
+        }
+
+        function subtractFinal(syllable, finalToRemove) {
+            const { initial, medial, final } = decomposeSyllable(syllable);
+
+            if (final === finalToRemove) {
+                return composeSyllable(initial, medial, "");
+            } else {
+                return `Cannot subtract ${finalToRemove} from ${syllable}`;
+            }
+        }
+
+        function demo() {
+            const syllable = "한";
+            const finalToRemove = "ᆫ";
+
+            const result = subtractFinal(syllable, finalToRemove);
+            document.getElementById('result').innerText = `Result: ${result}`;
+        }
+
+        window.onload = demo;
+    </script>
+</head>
+
+<body>
+    <h1>Hangul Subtraction</h1>
+    <p id="result"></p>
+</body>
+
+</html>
