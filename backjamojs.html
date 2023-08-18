@@ -51,13 +51,15 @@
 
                     event.preventDefault();
                 }
-            } else if (event.key === 'Space' && FINAL_JAMOS.includes(nextChar) && lastChar && lastChar.charCodeAt(0) >= 0xAC00 && lastChar.charCodeAt(0) <= 0xD7AF) {
-                const { initial, medial } = decomposeSyllable(lastChar);
+            } else if (FINAL_JAMOS.includes(nextChar)) {
+                if (lastChar && lastChar.charCodeAt(0) >= 0xAC00 && lastChar.charCodeAt(0) <= 0xD7AF) {
+                    const { initial, medial } = decomposeSyllable(lastChar);
 
-                if (lastChar.charCodeAt(0) % 28 === 0) {
-                    const newChar = composeSyllable(initial, medial, nextChar);
-                    inputElement.value = inputValue.slice(0, -1) + newChar;
-                    event.preventDefault();
+                    if (lastChar.charCodeAt(0) % 28 === 0) {
+                        const newChar = composeSyllable(initial, medial, nextChar);
+                        inputElement.value = inputValue.slice(0, -1) + newChar;
+                        event.preventDefault();
+                    }
                 }
             }
         }
