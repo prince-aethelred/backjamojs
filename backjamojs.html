@@ -4,74 +4,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hangul Subtraction and Addition</title>
+    <title>Hangul Combination</title>
     <script>
-        const INITIAL_JAMOS = ["ᄀ", "ᄁ", "ᄂ", "ᄃ", "ᄄ", "ᄅ", "ᄆ", "ᄇ", "ᄈ", "ᄉ", "ᄊ", "ᄋ", "ᄌ", "ᄍ", "ᄎ", "ᄏ", "ᄐ", "ᄑ", "ᄒ"];
-        const MEDIAL_JAMOS = ["ᅡ", "ᅢ", "ᅣ", "ᅤ", "ᅥ", "ᅦ", "ᅧ", "ᅨ", "ᅩ", "ᅪ", "ᅫ", "ᅬ", "ᅭ", "ᅮ", "ᅯ", "ᅰ", "ᅱ", "ᅲ", "ᅳ", "ᅴ", "ᅵ"];
-        const FINAL_JAMOS = ["", "ᆨ", "ᆩ", "ᆪ", "ᆫ", "ᆬ", "ᆭ", "ᆮ", "ᆯ", "ᆰ", "ᆱ", "ᆲ", "ᆳ", "ᆴ", "ᆵ", "ᆶ", "ᆷ", "ᆸ", "ᆹ", "ᆺ", "ᆻ", "ᆼ", "ᆽ", "ᆾ", "ᆿ", "ᇀ", "ᇁ", "ᇂ"];
+        const choseong = [
+            'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
+        ];
 
-        function decomposeSyllable(syllable) {
-            const code = syllable.charCodeAt(0) - 0xAC00;
-            const initialIdx = Math.floor(code / (21 * 28));
-            const medialIdx = Math.floor((code % (21 * 28)) / 28);
-            const finalIdx = code % 28;
+        const jungseong = [
+            'ㅏ', 'ㅐ', 'ㅑ', 'ㅒ', 'ㅓ', 'ㅔ', 'ㅕ', 'ㅖ', 'ㅗ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅛ', 'ㅜ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅠ', 'ㅡ', 'ㅢ', 'ㅣ'
+        ];
 
-            return {
-                initial: INITIAL_JAMOS[initialIdx],
-                medial: MEDIAL_JAMOS[medialIdx],
-                final: FINAL_JAMOS[finalIdx],
-            };
-        }
+        const jongseong = [
+            '', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ', 'ㄺ', 'ㄻ', 'ㄼ', 'ㄽ', 'ㄾ', 'ㄿ', 'ㅀ', 'ㅁ', 'ㅂ', 'ㅄ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
+        ];
 
-        function composeSyllable(initial, medial, final = "") {
-            const initialIdx = INITIAL_JAMOS.indexOf(initial);
-            const medialIdx = MEDIAL_JAMOS.indexOf(medial);
-            const finalIdx = FINAL_JAMOS.indexOf(final);
-
-            const code = (initialIdx * 21 + medialIdx) * 28 + finalIdx + 0xAC00;
-            return String.fromCharCode(code);
-        }
-
-        function handleKeyDown(event) {
+        function combineCharacters() {
             const inputElement = document.getElementById('input');
-            const inputValue = inputElement.value;
-            const lastChar = inputValue[inputValue.length - 1];
-            const nextChar = event.key;
+            let value = inputElement.value;
+            let i = 0;
 
-            if (event.key === 'Backspace') {
-                if (lastChar && lastChar.charCodeAt(0) >= 0xAC00 && lastChar.charCodeAt(0) <= 0xD7AF) {
-                    const { initial, medial, final } = decomposeSyllable(lastChar);
+            while (i < value.length - 1) {
+                const first = value[i];
+                const second = value[i + 1];
 
-                    if (final) {
-                        const newChar = composeSyllable(initial, medial, "");
-                        inputElement.value = inputValue.slice(0, -1) + newChar;
-                    } else {
-                        inputElement.value = inputValue.slice(0, -1);
-                    }
-
-                    event.preventDefault();
+                if (choseong.includes(first) && jungseong.includes(second)) {
+                    value = value.slice(0, i) + String.fromCharCode(0xAC00 + choseong.indexOf(first) * 588 + jungseong.indexOf(second) * 28) + value.slice(i + 2);
                 }
-            } else if (FINAL_JAMOS.includes(nextChar)) {
-                if (lastChar && lastChar.charCodeAt(0) >= 0xAC00 && lastChar.charCodeAt(0) <= 0xD7AF) {
-                    const { initial, medial } = decomposeSyllable(lastChar);
 
-                    if (lastChar.charCodeAt(0) % 28 === 0) {
-                        const newChar = composeSyllable(initial, medial, nextChar);
-                        inputElement.value = inputValue.slice(0, -1) + newChar;
-                        event.preventDefault();
+                else if (jongseong.includes(second) && 0xAC00 <= first.charCodeAt(0) && first.charCodeAt(0) <= 0xD7A3) {
+                    const index = first.charCodeAt(0) - 0xAC00;
+                    const newJongseong = jongseong.indexOf(second);
+                    if (newJongseong > 0) {
+                        value = value.slice(0, i) + String.fromCharCode(0xAC00 + index + newJongseong) + value.slice(i + 2);
                     }
                 }
+
+                i++;
             }
+
+            inputElement.value = value;
         }
 
         window.onload = function () {
-            document.getElementById('input').addEventListener('keydown', handleKeyDown);
+            document.getElementById('input').addEventListener('input', combineCharacters);
         };
     </script>
 </head>
 
 <body>
-    <h1>Hangul Subtraction and Addition</h1>
+    <h1>Hangul Combination</h1>
     <input type="text" id="input" style="width: 100%;">
 </body>
 
