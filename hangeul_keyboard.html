@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangul Jamo Display</title>
+    <style>
+        .keyboard-row {
+            display: flex;
+        }
+
+        .key {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 1px;
+            cursor: pointer;
+        }
+
+        .highlighted {
+            background-color: grey;
+        }
+    </style>
+    <script>
+        const HANGEUL_MAP = {
+            'q': 'ㅂ', 'w': 'ㅈ', 'e': 'ㄷ', 'r': 'ㄱ', 't': 'ㅅ', 'y': 'ㅛ', 'u': 'ㅕ', 'i': 'ㅑ', 'o': 'ㅐ', 'p': 'ㅔ',
+            'a': 'ㅁ', 's': 'ㄴ', 'd': 'ㅇ', 'f': 'ㄹ', 'g': 'ㅎ', 'h': 'ㅗ', 'j': 'ㅓ', 'k': 'ㅏ', 'l': 'ㅣ',
+            'z': 'ㅋ', 'x': 'ㅌ', 'c': 'ㅊ', 'v': 'ㅍ', 'b': 'ㅠ', 'n': 'ㅜ', 'm': 'ㅡ'
+        };
+
+        function createKeyboard() {
+            const container = document.getElementById('keyboard');
+            const rows = [Object.keys(HANGEUL_MAP).slice(0, 10), Object.keys(HANGEUL_MAP).slice(10, 19), Object.keys(HANGEUL_MAP).slice(19, 26)];
+            rows.forEach(row => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'keyboard-row';
+                row.forEach(key => {
+                    const keyDiv = document.createElement('div');
+                    keyDiv.className = 'key';
+                    keyDiv.textContent = HANGEUL_MAP[key];
+                    keyDiv.id = 'key-' + key;
+                    rowDiv.appendChild(keyDiv);
+                });
+                container.appendChild(rowDiv);
+            });
+        }
+
+        function handleKeyDown(event) {
+            const keyDiv = document.getElementById('key-' + event.key);
+            if (keyDiv) {
+                //keyDiv.classList.add('highlighted');
+            }
+        }
+
+        function handleKeyUp(event) {
+            const keyDiv = document.getElementById('key-' + event.key);
+            if (keyDiv) {
+                //keyDiv.classList.remove('highlighted');
+            }
+        }
+
+        window.onload = function () {
+            createKeyboard();
+            const inputElement = document.getElementById('input');
+            inputElement.addEventListener('keydown', handleKeyDown);
+            inputElement.addEventListener('keyup', handleKeyUp);
+        };
+    </script>
+    <script>
+        function displayLastJamo() {
+            const inputElement = document.getElementById('input');
+            const displayElement = document.getElementById('last-jamo');
+            const lastChar = inputElement.value.slice(-1);
+
+            if (isHangulJamo(lastChar)) {
+                displayElement.textContent = lastChar;
+                const keyDiv = document.getElementById('key-' + lastChar);
+                if (keyDiv) {
+                    keyDiv.classList.add('highlighted');
+                }
+            }
+        }
+
+        function isHangulJamo(char) {
+            const code = char.charCodeAt(0);
+            //return (0x1100 <= code && code <= 0x11FF) || // Choseong
+            //    (0x1160 <= code && code <= 0x11A7) || // Jungseong
+            //    (0x11A8 <= code && code <= 0x11FF);   // Jongseong
+            return true;
+        }
+    </script>
+</head>
+
+<body>
+    <h1>Hangul Jamo Display</h1>
+    <input type="text" id="input" oninput="displayLastJamo()" style="width: 100%;">
+    <div id="last-jamo" style="font-size: 20px; margin-top: 10px;"></div>
+</body>
+
+<body>
+    <input type="text" id="input" style="width: 100%;">
+    <div id="keyboard"></div>
+</body>
+
+</html>

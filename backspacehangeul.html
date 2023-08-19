@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangul Subtraction</title>
+    <script>
+        const INITIAL_JAMOS_LIST = ["ᄀ", "ᄁ", "ᄂ", "ᄃ", "ᄄ", "ᄅ", "ᄆ", "ᄇ", "ᄈ", "ᄉ", "ᄊ", "ᄋ", "ᄌ", "ᄍ", "ᄎ", "ᄏ", "ᄐ", "ᄑ", "ᄒ"];
+        const MEDIAL_JAMOS_LIST = ["ᅡ", "ᅢ", "ᅣ", "ᅤ", "ᅥ", "ᅦ", "ᅧ", "ᅨ", "ᅩ", "ᅪ", "ᅫ", "ᅬ", "ᅭ", "ᅮ", "ᅯ", "ᅰ", "ᅱ", "ᅲ", "ᅳ", "ᅴ", "ᅵ"];
+        const FINAL_JAMOS_LIST = ["", "ᆨ", "ᆩ", "ᆪ", "ᆫ", "ᆬ", "ᆭ", "ᆮ", "ᆯ", "ᆰ", "ᆱ", "ᆲ", "ᆳ", "ᆴ", "ᆵ", "ᆶ", "ᆷ", "ᆸ", "ᆹ", "ᆺ", "ᆻ", "ᆼ", "ᆽ", "ᆾ", "ᆿ", "ᇀ", "ᇁ", "ᇂ"];
+        const HANGUL_UNICODE_START = 0xAC00;
+        const HANGUL_UNICODE_END = 0xD7AF;
+
+        function decomposeSyllable(hangulSyllableChar) {
+            const hangulSyllableUnicodeValue = hangulSyllableChar.charCodeAt(0);
+            const hangulSyllableIndex = hangulSyllableUnicodeValue - HANGUL_UNICODE_START;
+
+            const initialIndex = Math.floor(hangulSyllableIndex / (21 * 28));
+            const remainderAfterInitial = hangulSyllableIndex % (21 * 28);
+            const medialIndex = Math.floor(remainderAfterInitial / 28);
+            const finalIndex = remainderAfterInitial % 28;
+
+            return {
+                initial: INITIAL_JAMOS_LIST[initialIndex],
+                medial: MEDIAL_JAMOS_LIST[medialIndex],
+                final: FINAL_JAMOS_LIST[finalIndex],
+            };
+        }
+
+        function composeSyllable(initial, medial, final = "") {
+            const initialIndex = INITIAL_JAMOS_LIST.indexOf(initial);
+            const medialIndex = MEDIAL_JAMOS_LIST.indexOf(medial);
+            const finalIndex = FINAL_JAMOS_LIST.indexOf(final);
+
+            const initialContribution = initialIndex * 21;
+            const medialContribution = medialIndex * 28;
+            const finalContribution = finalIndex;
+
+            const newCharUnicode = (initialContribution + medialContribution + finalContribution) + HANGUL_UNICODE_START;
+            const newCharString = String.fromCharCode(newCharUnicode);
+            return newCharString;
+        }
+
+        function handleBackspace(event) {
+            if (event.key === 'Backspace') {
+                const inputElement = document.getElementById('input');
+                const inputValue = inputElement.value;
+                const lastChar = inputValue[inputValue.length - 1];
+                const lastCharCode = lastChar.charCodeAt(0);
+
+                if (lastChar && lastCharCode >= HANGUL_UNICODE_START && lastCharCode <= HANGUL_UNICODE_END) {
+                    const { initial, medial, final } = decomposeSyllable(lastChar);
+
+                    if (final) {
+                        const newChar = composeSyllable(initial, medial, "");
+                        inputElement.value = inputValue.slice(0, -1) + newChar;
+                    } else {
+                        inputElement.value = inputValue.slice(0, -1);
+                    }
+
+                    event.preventDefault();
+                }
+            }
+        }
+
+        window.onload = function () {
+            document.getElementById('input').addEventListener('keydown', handleBackspace);
+        };
+    </script>
+</head>
+
+<body>
+    <h1>Hangul Subtraction</h1>
+    <input type="text" id="input" style="width: 100%;">
+</body>
+
+</html>
