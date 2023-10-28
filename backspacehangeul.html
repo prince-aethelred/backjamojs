@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hangul Subtraction</title>
+    <title>Hangul Subtraction v2</title>
     <script>
         const INITIAL_JAMOS_LIST = ["ᄀ", "ᄁ", "ᄂ", "ᄃ", "ᄄ", "ᄅ", "ᄆ", "ᄇ", "ᄈ", "ᄉ", "ᄊ", "ᄋ", "ᄌ", "ᄍ", "ᄎ", "ᄏ", "ᄐ", "ᄑ", "ᄒ"];
         const MEDIAL_JAMOS_LIST = ["ᅡ", "ᅢ", "ᅣ", "ᅤ", "ᅥ", "ᅦ", "ᅧ", "ᅨ", "ᅩ", "ᅪ", "ᅫ", "ᅬ", "ᅭ", "ᅮ", "ᅯ", "ᅰ", "ᅱ", "ᅲ", "ᅳ", "ᅴ", "ᅵ"];
@@ -19,7 +19,10 @@
             const initialIndex = Math.floor(hangulSyllableIndex / (21 * 28));
             const remainderAfterInitial = hangulSyllableIndex % (21 * 28);
             const medialIndex = Math.floor(remainderAfterInitial / 28);
-            const finalIndex = remainderAfterInitial % 28;
+            // Subtract 0x11A7 from the final jamo Unicode value
+            const finalJamoUnicodeValue = remainderAfterInitial % 28 + 0x11A7;
+            // Use the adjusted value to calculate the finalIndex
+            const finalIndex = finalJamoUnicodeValue - 0x11A7;
 
             return {
                 initial: INITIAL_JAMOS_LIST[initialIndex],
@@ -27,6 +30,7 @@
                 final: FINAL_JAMOS_LIST[finalIndex],
             };
         }
+
 
         function composeSyllable(initial, medial, final = "") {
             const initialIndex = INITIAL_JAMOS_LIST.indexOf(initial);
@@ -71,7 +75,7 @@
 </head>
 
 <body>
-    <h1>Hangul Subtraction</h1>
+    <h1>Hangul Subtraction v2</h1>
     <input type="text" id="input" style="width: 100%;">
 </body>
 
