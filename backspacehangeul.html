@@ -19,10 +19,7 @@
             const initialIndex = Math.floor(hangulSyllableIndex / (21 * 28));
             const remainderAfterInitial = hangulSyllableIndex % (21 * 28);
             const medialIndex = Math.floor(remainderAfterInitial / 28);
-            // Subtract 0x11A7 from the final jamo Unicode value
-            const finalJamoUnicodeValue = remainderAfterInitial % 28 + 0x11A7;
-            // Use the adjusted value to calculate the finalIndex
-            const finalIndex = finalJamoUnicodeValue - 0x11A7;
+            const finalIndex = remainderAfterInitial % 28;
 
             return {
                 initial: INITIAL_JAMOS_LIST[initialIndex],
@@ -31,13 +28,15 @@
             };
         }
 
-
         function composeSyllable(initial, medial, final = "") {
             const initialIndex = INITIAL_JAMOS_LIST.indexOf(initial);
             const medialIndex = MEDIAL_JAMOS_LIST.indexOf(medial);
-            const finalIndex = FINAL_JAMOS_LIST.indexOf(final);
+            let finalIndex = 0;
+            if (final !== "") {
+                finalIndex = FINAL_JAMOS_LIST.indexOf(final);
+            }
 
-            const initialContribution = initialIndex * 21;
+            const initialContribution = initialIndex * 21 * 28;
             const medialContribution = medialIndex * 28;
             const finalContribution = finalIndex;
 
@@ -45,6 +44,7 @@
             const newCharString = String.fromCharCode(newCharUnicode);
             return newCharString;
         }
+
 
         function handleBackspace(event) {
             if (event.key === 'Backspace') {
