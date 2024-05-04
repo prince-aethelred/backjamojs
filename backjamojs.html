@@ -6,59 +6,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hangul Combination</title>
     <script>
-        const choseong_list = [
+        const choSeongList = [
             'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
         ];
 
-        const jungseong_list = [
+        const jungSeongList = [
             'ㅏ', 'ㅐ', 'ㅑ', 'ㅒ', 'ㅓ', 'ㅔ', 'ㅕ', 'ㅖ', 'ㅗ', 'ㅘ', 'ㅙ', 'ㅚ', 'ㅛ', 'ㅜ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅠ', 'ㅡ', 'ㅢ', 'ㅣ'
         ];
 
-        const jongseong_list = [
+        const jongSeongList = [
             '', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ', 'ㄺ', 'ㄻ', 'ㄼ', 'ㄽ', 'ㄾ', 'ㄿ', 'ㅀ', 'ㅁ', 'ㅂ', 'ㅄ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
         ];
 
-        function is_hangeul(input) {
-            const hangeulPattern = /^[\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF\s]+$/;
-            return hangeulPattern.test(input);
-        }
+        function combineSingleJamos(input) {
+            const doubleJamos = {
+                "ㄱㄱ": "ㄲ",
+                "ㅅㅅ": "ㅆ",
+                "ㄷㄷ": "ㄸ",
+                "ㅂㅂ": "ㅃ",
+                "ㅈㅈ": "ㅉ",
+                "ᆨㄱ": "ᆩ",
+                "ᆺㅅ": "ᆻ",
+                // Add more combinations here
+            };
 
+            const HANGEUL_START = 0xAC00;
+            const HANGEUL_END = 0xD7A3;
 
-        function combineCharacters() {
-            const textbox = document.getElementById('input');
-            let input_text = textbox.value;
+            let output = '';
             let i = 0;
-            const end = input_text.length - 1;
-            let hangeul_text = input_text;
-
-            for (i = 0; i < end; i++) {
-                const first_character = hangeul_text[i];
-                console.log("first_character:", first_character);
-                const second_character = hangeul_text[i + 1];
-                console.log("second_character:", second_character);
-
-                if (choseong_list.includes(first_character) && jungseong_list.includes(second_character)) {
-                    hangeul_text = hangeul_text.slice(0, i) + String.fromCharCode(0xAC00 + choseong_list.indexOf(first_character) * 588 + jungseong_list.indexOf(second_character) * 28) + hangeul_text.slice(i + 2);
-                    console.log("hangeul_text:", hangeul_text);
-                }
-
-                else if (jongseong_list.includes(second_character) && 0xAC00 <= first_character.charCodeAt(0) && first_character.charCodeAt(0) <= 0xD7A3) {
-                    const index = first_character.charCodeAt(0) - 0xAC00; // 유니코드에서 한글의 시작인 0xAC00을 빼준다.
-
-                    console.log("index:", index);
-                    const newJongseong = jongseong_list.indexOf(second_character); // 종성의 인덱스를 찾는다.
-                    console.log("newJongseong:", newJongseong);
-                    if (newJongseong > 0) { // 종성이 있을 때
-                        console.log("종성이 있을 때");
-                        hangeul_text = hangeul_text.slice(0, i) + String.fromCharCode(0xAC00 + index + newJongseong) + hangeul_text.slice(i + 2);
-                        console.log("hangeul_text:", hangeul_text);
-                    }
+            while (i < input.length) {
+                if (i < input.length - 1 && doubleJamos[input[i] + input[i + 1]]) {
+                    output += doubleJamos[input[i] + input[i + 1]];
+                    i += 2;
+                } else {
+                    output += input[i];
+                    i++;
                 }
             }
 
-            textbox.value = hangeul_text;
+            return output;
+        }
+
+        // Determines if the character is a Hangeul Character by
+        // Checking if it is in the Unicode Hangeul Range
+        function isHangeul(character) {
+            const charCode = character.charCodeAt(0);
+            return 0xAC00 <= charCode && charCode <= 0xD7A3;
+        }
+
+        function getSyllableFromJamos(currentCharacter, nextCharacter) {
+            return String.fromCharCode(HANGEUL_START + choSeongList.indexOf(currentCharacter) * 588 + jungSeongList.indexOf(nextCharacter) * 28);
+        }
+
+        function replaceJongSeongInSyllable(currentCharacter, nextCharacter) {
+            const index = currentCharacter.charCodeAt(0) - HANGEUL_START;
+            const newJongSeongIndex = jongSeongList.indexOf(nextCharacter);
+            if (newJongSeongIndex > 0 && index % 28 === 0) {
+                return String.fromCharCode(HANGEUL_START + index + newJongSeongIndex);
+            }
+            return null;
+        }
+
+        function insertSubstring(originalString, newSubString, startIndex, endIndex) {
+            const prefix = originalString.slice(0, startIndex);
+            const suffix = originalString.slice(endIndex);
+
+            return prefix + newSubstring + suffix;
+        }
+
+        function combineCharacters() {
+            const textbox = document.getElementById('input');
+            let inputText = textbox.value;
+            inputText = combineSingleJamos(inputText);
+            let i = 0;
+
+
+            const inputTextEndIndex = inputText.length - 1;
+            let outputHangeul = inputText;
+
+
+            for (i = 0; i < inputTextEndIndex; i++) {
+                const firstCharacter = outputHangeul[i];
+                const secondCharacter = outputHangeul[i + 1];
+
+                if (choSeongList.includes(firstCharacter) && jungSeongList.includes(secondCharacter)) {
+                    //outputHangeul = outputHangeul.slice(0, i) + String.fromCharCode(0xAC00 + choSeongList.indexOf(firstCharacter) * 588 + jungSeongList.indexOf(secondCharacter) * 28) + outputHangeul.slice(i + 2);
+                    console.log("choSeongList includes firstCharacter ; jungSeongList includes secondCharacter");
+                    const newSyllable = getSyllableFromJamos(firstCharacter, secondCharacter);
+                    outputHangeul = insertSubstring(outputHangeul, newSyllable, i, i + 2);
+                }
+
+                else if (jongSeongList.includes(secondCharacter) && isHangeul(firstCharacter)) {
+                    /*const index = firstCharacter.charCodeAt(0) - 0xAC00; // 유니코드에서 한글의 시작인 0xAC00을 빼준다.
+                    const newJongseong = jongSeongList.indexOf(secondCharacter); // 종성의 인덱스를 찾는다.
+                    if (newJongseong > 0 && index % 28 === 0) { // 종성이 있을 때
+                        outputHangeul = outputHangeul.slice(0, i) + String.fromCharCode(0xAC00 + index + newJongseong) + outputHangeul.slice(i + 2);
+                    }*/
+                    console.log("jongSeongList includes secondCharacter ; firstCharacter is a Hangeul Character")
+                    const newHangeulSyllable = replaceJongSeongInSyllable(firstCharacter, secondCharacter);
+
+                    if (newHangeulSyllable !== null) {
+                        outputHangeul = insertSubstring(outputHangeul, newHangeulSyllable, i, i + 2);
+                    }
+
+
+                }
+            }
+
+            textbox.value = outputHangeul;
             console.log("textbox.value:", textbox.value);
         }
+
 
         window.onload = function () {
             document.getElementById('input').addEventListener('input', combineCharacters);
